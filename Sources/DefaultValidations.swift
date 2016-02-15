@@ -50,9 +50,6 @@ internal enum DefaultValidatorPattern {
             
         case .Numeric:
             return "numeric"
-            
-        default:
-            return "custom"
         }
     }
     
@@ -72,9 +69,6 @@ internal enum DefaultValidatorPattern {
             
         case .Numeric:
             return "{field} can only be numbers"
-            
-        default:
-            return "custom"
         }
     }
 

@@ -68,7 +68,7 @@ public class Form : NSObject {
         fatalError("Must be implemented in subclass, return a list of fields to be displayed")
     }
     
-    private func getFieldName(var field:Field) -> String {
+    private func getFieldName(field:Field) -> String {
         if let f = field as? NSObject {
             
             for property in propertyNames() {
