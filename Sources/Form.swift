@@ -10,6 +10,41 @@ import Foundation
 import UIKit
 
 /**
+ # FormFieldDefaults
+ Protocol used if form should define defaults for all fields (these are overwritten by field's setup block).
+ */
+
+public protocol FormFieldDefaults {
+    var font:UIFont                         {get}
+    var textColor:UIColor                   {get}
+    var textAlignment:NSTextAlignment       {get}
+    var keyboardType:UIKeyboardType         {get}
+    var defaultValidation:[ValidationRule]  {get}
+}
+
+public extension FormFieldDefaults {
+    var font:UIFont {
+        return UIFont.systemFontOfSize(UIFont.systemFontSize())
+    }
+    
+    var textColor:UIColor {
+        return .blackColor()
+    }
+    
+    var textAlignment:NSTextAlignment {
+        return .Left
+    }
+    
+    var keyboardType:UIKeyboardType {
+        return .Default
+    }
+    
+    var defaultValidation:[ValidationRule] {
+        return []
+    }
+}
+
+/**
  # Form
  Subclass to create a new form that defines fields and their validators.
  */
@@ -24,8 +59,8 @@ public class Form : NSObject {
     public var errors:[String:[String]] = [:]
     
     /// List of form's fields.
-    public var fields:[Field] {
-        let orderedFields       = order()
+    public lazy var fields:[Field] = {
+        let orderedFields       = self.order()
         var fieldsArray:[Field] = []
 
         for var field in orderedFields {
@@ -35,14 +70,33 @@ public class Form : NSObject {
             let index       = next  - 1
             let previous    = index - 1
             
-            field.next      = next      < orderedFields.count   ? orderedFields[next]       : nil
-            field.previous  = previous  > 0                     ? orderedFields[previous]   : nil
-            field.form      = self
-            field.name      = getFieldName(field)
+            field.next          = next      < orderedFields.count   ? orderedFields[next]       : nil
+            field.previous      = previous  > -1                    ? orderedFields[previous]   : nil
+            field.form          = self
+            field.name          = self.getFieldName(field)
+            
+            if let _self = self as? FormFieldDefaults {
+                field.font          = _self.font
+                field.textColor     = _self.textColor
+                field.textAlignment = _self.textAlignment   ?? .Left
+                field.keyboardType  = _self.keyboardType    ?? .Default
+            
+                if  field.validators.count == 0 {
+                    field.validators = _self.defaultValidation
+                }
+            }
+            
+            if let _field = field as? TextView {
+                _field.setupBlock?(_field)
+            }
+                
+            else if let _field = field as? TextField {
+                _field.setupBlock?(_field)
+            }
         }
         
         return fieldsArray
-    }
+    }()
     
     /// Specifies if a form (and it's fields) are valid or not.
     public var isValid:Bool {
@@ -55,7 +109,6 @@ public class Form : NSObject {
                 errors[field.name] = field.errors
             }
         }
-        
         
         return _isValid
     }
@@ -80,13 +133,19 @@ public class Form : NSObject {
                     return property
                 }
             }
-            
         }
         
         return ""
     }
     
-    internal func propertyNames() -> [String] {
-        return Mirror(reflecting: self).children.filter { $0.label != nil }.map { $0.label! }
+    private func propertyNames() -> [String] {
+        var token:dispatch_once_t   = 0
+        var names:[String]          = []
+        
+        dispatch_once(&token) { 
+            names = Mirror(reflecting: self).children.filter { $0.label != nil }.map { $0.label! }
+        }
+
+        return names
     }
 }

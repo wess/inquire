@@ -11,6 +11,9 @@ import UIKit
 
 /// UITextView for use with Form.
 public class TextView : UITextView, Field {
+    /// Placeholder for empty field
+    public var placeholder:String?
+    
     /// Form containing field.
     public var form:Form?
     
@@ -62,12 +65,43 @@ public class TextView : UITextView, Field {
         }
     }
     
+    internal var setupBlock:(TextView -> Void)? = nil
+    
+    public convenience init(placeholder:String?, setup:(TextView -> Void)? = nil) {
+        self.init(validators:[], setup:setup)
+        
+        self.placeholder = placeholder
+    }
+    
+    public convenience init(placeholder:String?, validators:[ValidationRule] = []) {
+        self.init(validators:validators, setup:nil)
+        
+        self.placeholder = placeholder
+    }
+    
+    public convenience init(placeholder:String?, validators:[ValidationRule] = [], setup:(TextView -> Void)? = nil) {
+        self.init(validators:validators, setup:setup)
+        
+        self.placeholder = placeholder
+    }
+
+    public convenience init() {
+        self.init(validators:[], setup:nil)
+    }
+
+    public convenience init(setup:(TextView -> Void)? = nil) {
+        self.init(validators:[], setup:setup)
+    }
+    
+    public convenience init(validators:[ValidationRule] = []) {
+        self.init(validators:validators, setup:nil)
+    }
+
     public required init(validators:[ValidationRule] = [], setup:(TextView -> Void)? = nil) {
         super.init(frame: .zero, textContainer: nil)
         
         self.validators = validators
-        
-        setup?(self)
+        self.setupBlock = setup
     }
     
     public required init?(coder aDecoder: NSCoder) {

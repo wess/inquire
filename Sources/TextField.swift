@@ -24,7 +24,10 @@ public class TextField : UITextField, Field {
     public var onError:FieldErrorHandler?
 
     /// Name of field, default to property name in form.
-    public var name:String                  = ""
+    public var name:String = ""
+    
+    /// Title of field, usually the same as Placeholder
+    public var title:String = ""
     
     /// Input toolbar
     private lazy var toolbar:UIToolbar = {
@@ -63,11 +66,49 @@ public class TextField : UITextField, Field {
         }
     }
 
-    public required init(validators:[ValidationRule] = [], setup:(TextField -> Void)? = nil) {
+    internal var setupBlock:(TextField -> Void)? = nil
+    
+    public convenience init(placeholder:String?) {
+        self.init(validators:[], setup:nil)
+
+        self.placeholder = placeholder
+    }
+    
+    public convenience init(placeholder:String?, setup:(TextField -> Void)?) {
+        self.init(validators:[], setup:setup)
+    
+        self.placeholder = placeholder
+    }
+    
+    public convenience init(placeholder:String?, validators:[ValidationRule]?) {
+        self.init(validators:validators ?? [], setup:nil)
+
+        self.placeholder = placeholder
+    }
+    
+    public convenience init(placeholder:String?, validators:[ValidationRule]?, setup:(TextField -> Void)?) {
+        self.init(validators:validators ?? [], setup:setup)
+        
+        self.placeholder = placeholder
+    }
+    
+    public convenience init() {
+        self.init(validators:[], setup:nil)
+    }
+
+    public convenience init(setup:(TextField -> Void)?) {
+        self.init(validators:[], setup:setup)
+    }
+    
+    public convenience init(validators:[ValidationRule] = []) {
+        self.init(validators:validators, setup:nil)
+    }
+
+    public required init(validators:[ValidationRule] = [], setup:(TextField -> Void)?) {
         super.init(frame: .zero)
         
         self.validators = validators
-        setup?(self)
+        self.setupBlock = setup
     }
     
     required public init?(coder aDecoder: NSCoder) {
