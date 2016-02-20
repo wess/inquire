@@ -21,6 +21,13 @@ public struct ValidationRule {
     let message:String
     let pattern:String?
     let block:ValidationBlock?
+    
+    public init(name:String, message:String, pattern:String? = nil, block:ValidationBlock? = nil) {
+        self.name       = name
+        self.message    = message
+        self.pattern    = pattern
+        self.block      = block
+    }
 }
 
 /// Validation rule for Email

@@ -53,7 +53,16 @@ public class Form : NSObject {
     public let validation = Validation()
     
     /// The Current field of the form that has focus.
-    public var currentField:Field?
+    public var currentField:Field? {
+        
+        for field in fields {
+            if field.isFirstResponder() {
+                return field
+            }
+        }
+        
+        return nil
+    }
     
     /// Form errors from field validations
     public var errors:[String:[String]] = [:]
@@ -90,8 +99,8 @@ public class Form : NSObject {
                 _field.setupBlock?(_field)
             }
                 
-            else if let _field = field as? TextField {
-                _field.setupBlock?(_field)
+            else if let _field = field as? TextField, setupBlock = _field.setupBlock {
+                setupBlock(_field)
             }
         }
         

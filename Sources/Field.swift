@@ -34,6 +34,7 @@ public protocol Field {
     var onError:FieldErrorHandler?  {get set}
 
     mutating func validate() -> Bool
+    func isFirstResponder() -> Bool 
 }
 
 extension Field {
