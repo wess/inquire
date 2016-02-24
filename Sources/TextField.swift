@@ -28,10 +28,7 @@ public class TextField : UITextField, Field {
     
     /// Title of field, usually the same as Placeholder
     public var title:String = ""
-    
-    /// Pattern to mask input with
-    public var stringMask:String?
-    
+
     /// Input toolbar
     private lazy var toolbar:UIToolbar = {
         let frame       = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.size.width, height: 44)
@@ -39,21 +36,6 @@ public class TextField : UITextField, Field {
         
         return _toolbar
     }()
-    
-    override public var text: String? {
-        get {
-            return super.text
-        }
-        
-        set {
-            if let stringMask = stringMask, string = newValue {
-                super.text = formatString(string, pattern: stringMask)
-            }
-            else {
-                super.text = newValue
-            }
-        }
-    }
     
     /// Items for field toolbar.
     public var toolbarItems:[FieldToolbarButtonItem]? {
@@ -84,6 +66,12 @@ public class TextField : UITextField, Field {
         }
     }
 
+    public override var delegate: UITextFieldDelegate? {
+        didSet {
+            print("HERE")
+        }
+    }
+    
     internal var setupBlock:(TextField -> Void)? = nil
     
     public convenience init(placeholder:String?) {
