@@ -151,10 +151,26 @@ public class Form : NSObject {
         var token:dispatch_once_t   = 0
         var names:[String]          = []
         
-        dispatch_once(&token) { 
-            names = Mirror(reflecting: self).children.filter { $0.label != nil }.map { $0.label! }
-        }
+        dispatch_once(&token) {
 
+            let children = Mirror(reflecting: self).children.filter { $0.label != nil }
+            
+            for (label, value) in children {
+                switch value {
+                case is TextView:
+                    names.append(label!)
+                    break
+
+                case is TextField:
+                    names.append(label!)
+                    break
+            
+                default: ()
+                    break
+                }
+            }
+        }
+        
         return names
     }
 }
