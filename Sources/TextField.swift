@@ -66,12 +66,6 @@ public class TextField : UITextField, Field {
         }
     }
 
-    public override var delegate: UITextFieldDelegate? {
-        didSet {
-            print("HERE")
-        }
-    }
-    
     internal var setupBlock:(TextField -> Void)? = nil
     
     public convenience init(placeholder:String?) {

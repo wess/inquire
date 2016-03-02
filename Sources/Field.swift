@@ -18,6 +18,7 @@ public typealias FieldErrorHandler      = (field:Field, rule:ValidationRule) -> 
 /// Protocol for creating Inquire forms.
 public protocol Field {
     // Basic Field properties for UITextField and UITextView
+    var frame:CGRect                    {get set}
     var font:UIFont?                    {get set}
     var textColor:UIColor?              {get set}
     var textAlignment: NSTextAlignment  {get set}
