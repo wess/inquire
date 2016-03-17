@@ -48,6 +48,10 @@ public extension FormFieldDefaults {
  # Form
  Subclass to create a new form that defines fields and their validators.
  */
+
+public typealias Fieldname     = String
+public typealias Fieldvalue    = String
+
 public class Form : NSObject {
     /// Validation instance used for validating form fields.
     public let validation = Validation()
@@ -87,10 +91,10 @@ public class Form : NSObject {
         return _isValid
     }
     
-    public override init() {
+    public init(defaults:[Fieldname:Fieldvalue]? = nil) {
         super.init()
         
-        buildFieldsArray()
+        buildFieldsArray(defaults)
     }
     
     /**
@@ -101,9 +105,6 @@ public class Form : NSObject {
         fatalError("Must be implemented in subclass, return a list of fields to be displayed")
     }
 }
-
-typealias Fieldname     = String
-typealias Fieldvalue    = String
 
 private extension Form /* Private */ {
     func buildFieldsArray(defaults:[Fieldname:Fieldvalue]? = nil) -> [Field] {
@@ -139,6 +140,10 @@ private extension Form /* Private */ {
                 
             else if let _field = field as? TextField, setupBlock = _field.setupBlock {
                 setupBlock(_field)
+            }
+
+            if let defaults = defaults, value = defaults[field.name] {
+                field.value = value 
             }
         }
         
