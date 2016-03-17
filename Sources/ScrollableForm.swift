@@ -37,13 +37,17 @@ public extension ScrollableForm where Self:UIViewController {
             let size        = frame.size
             let height      = size.height
             let duration    = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as! NSNumber) as NSTimeInterval
+
+            var toFrame         = currentField.frame
+            toFrame.size.height = height
+            toFrame.size        = size
             
             scrollTo(currentField.frame, duration: duration)
         }
     }
     
     func keyboardWillHide(notification:NSNotification) {
-        if let userInfo = notification.userInfo, currentField = form.currentField {
+        if let _ = notification.userInfo, _ = form.currentField {
             if let userInfo     = notification.userInfo {
                 let duration    = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as! NSNumber) as NSTimeInterval
                 
