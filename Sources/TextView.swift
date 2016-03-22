@@ -52,7 +52,7 @@ public class TextView : UITextView, Field {
     public var validators:[ValidationRule]  = []
     
     /// Field errors.
-    public var errors:[String]              = []
+    public var errors:[ValidationType]      = []
     
     /// Field's value.
     public var value:String? {

@@ -71,10 +71,29 @@ internal enum DefaultValidatorPattern {
             return "{field} can only be numbers"
         }
     }
+    
+    var type:ValidationType {
+        switch self {
+        case .Email:
+            return ValidationType.Formatting
+            
+        case .URL:
+            return ValidationType.Formatting
+            
+        case .AlphaNumeric:
+            return ValidationType.Formatting
+            
+        case .Alpha:
+            return ValidationType.Formatting
+            
+        case .Numeric:
+            return ValidationType.Formatting
+        }
+    }
 
         
     var rule:ValidationRule {
-        return ValidationRule(name: stringValue, message: message, pattern: pattern, block: nil)
+        return ValidationRule(name: stringValue, type: type, message: message, pattern: pattern, block: nil)
     }
 
 }
