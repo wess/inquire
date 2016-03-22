@@ -18,12 +18,14 @@ import Foundation
  */
 public struct ValidationRule {
     let name:String
+    let type:ValidationType
     let message:String
     let pattern:String?
     let block:ValidationBlock?
     
-    public init(name:String, message:String, pattern:String? = nil, block:ValidationBlock? = nil) {
+    public init(name:String, type:ValidationType, message:String, pattern:String? = nil, block:ValidationBlock? = nil) {
         self.name       = name
+        self.type       = type
         self.message    = message
         self.pattern    = pattern
         self.block      = block
@@ -46,10 +48,41 @@ public let Alpha        = DefaultValidatorPattern.Alpha.rule
 public let Numeric      = DefaultValidatorPattern.Numeric.rule
 
 /// Validation rule for required fields.
-public let Required     = ValidationRule(name: "required", message: "Field is required", pattern: nil) { value -> Bool in
+public let Required     = ValidationRule(name: "required", type: .Required, message: "Field is required", pattern: nil) { value -> Bool in
     guard let value = value as? String else {
         return false
     }
 
     return value.characters.count > 0
+}
+
+/**
+ ## ValidationType
+ Defines a category that a validation rule falls under.
+ */
+public enum ValidationType : RawRepresentable {
+    public typealias RawValue = String
+    
+    case Required
+    case Formatting
+    case Length
+    case Custom(String)
+    
+    public init?(rawValue: ValidationType.RawValue) {
+        switch rawValue {
+            case "required":   self = Required
+            case "formatting": self = Formatting
+            case "length":     self = Length
+            default: self =    Custom(rawValue)
+        }
+    }
+    
+    public var rawValue:RawValue {
+        switch self {
+            case Required:        return "required"
+            case Formatting:      return "formatting"
+            case Length:          return "length"
+            case Custom(let str): return str
+        }
+    }
 }

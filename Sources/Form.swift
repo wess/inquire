@@ -69,7 +69,7 @@ public class Form : NSObject {
     }
     
     /// Form errors from field validations
-    public var errors:[String:[String]] = [:]
+    public var errors:[String:[ValidationType]] = [:]
     
     /// List of form's fields.
     public lazy var fields:[Field] = {

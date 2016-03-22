@@ -30,7 +30,7 @@ public protocol Field {
     var previous:Field?             {get set}
     var next:Field?                 {get set}
     var name:String                 {get set}
-    var errors:[String]             {get set}
+    var errors:[ValidationType]     {get set}
     var validators:[ValidationRule] {get set}
     var value:String?               {get set}
     var onError:FieldErrorHandler?  {get set}
@@ -55,7 +55,7 @@ extension Field {
             isValid = validation.validate(value, rule: validator)
             
             if !isValid {
-                errors.append(validator.message)
+                errors.append(validator.type)
                 
                 self.onError?(field: self, rule: validator)
             }
