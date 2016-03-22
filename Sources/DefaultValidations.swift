@@ -74,19 +74,7 @@ internal enum DefaultValidatorPattern {
     
     var type:ValidationType {
         switch self {
-        case .Email:
-            return ValidationType.Formatting
-            
-        case .URL:
-            return ValidationType.Formatting
-            
-        case .AlphaNumeric:
-            return ValidationType.Formatting
-            
-        case .Alpha:
-            return ValidationType.Formatting
-            
-        case .Numeric:
+        case .Email, .URL, .AlphaNumeric, .Alpha, .Numeric:
             return ValidationType.Formatting
         }
     }
