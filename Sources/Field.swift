@@ -50,7 +50,8 @@ extension Field {
         else {
             validation = GlobalValidation
         }
-            
+        
+        errors.removeAll()
         for validator in validators {
             isValid = validation.validate(value, rule: validator)
             
