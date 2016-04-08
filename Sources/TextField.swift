@@ -29,6 +29,9 @@ public class TextField : UITextField, Field {
     /// Title of field, usually the same as Placeholder
     public var title:String = ""
 
+    /// meta data for field
+    public var meta:[String:AnyObject] = [:]
+    
     /// Input toolbar
     private lazy var toolbar:UIToolbar = {
         let frame       = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.size.width, height: 44)
@@ -53,7 +56,7 @@ public class TextField : UITextField, Field {
     public var validators:[ValidationRule]  = []
     
     /// Field errors.
-    public var errors:[ValidationType]      = []
+    public var errors:[(ValidationType, String)] = []
     
     /// Field's value.
     public var value:String? {

@@ -69,7 +69,7 @@ public class Form : NSObject {
     }
     
     /// Form errors from field validations
-    public var errors:[String:[ValidationType]] = [:]
+    public var errors:[String:[(ValidationType, String)]] = [:]
     
     /// List of form's fields.
     public lazy var fields:[Field] = {
@@ -80,6 +80,7 @@ public class Form : NSObject {
     public var isValid:Bool {
         var _isValid = true
         
+        errors.removeAll()
         for var field in fields {
             _isValid = field.validate()
             
@@ -88,7 +89,7 @@ public class Form : NSObject {
             }
         }
         
-        return _isValid
+        return (errors.count == 0)
     }
     
     public init(defaults:[Fieldname:Fieldvalue]? = nil) {
@@ -103,6 +104,23 @@ public class Form : NSObject {
      */
     public func order() -> [Field] {
         fatalError("Must be implemented in subclass, return a list of fields to be displayed")
+    }
+    
+    /**
+     ## Form as a responder
+     By resigning every field in the form as firstResponder, the form resigns first responder :)
+    */
+    public func resignFirstResponder() {
+        fields.map {
+            if let _field = $0 as? TextView {
+                _field.resignFirstResponder()
+            }
+                
+            else if let _field = $0 as? TextField, setupBlock = _field.setupBlock {
+                _field.resignFirstResponder()
+            }
+
+        }
     }
 }
 

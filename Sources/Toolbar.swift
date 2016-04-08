@@ -40,7 +40,7 @@ public func ToolbarButtonItem(image: UIImage?, style: UIBarButtonItemStyle, hand
         $0.handler  = handler
         
         return $0
-    }(FieldToolbarButtonItem(image: image, style: style, target: nil, action: "targetAction:"))
+    }(FieldToolbarButtonItem(image: image, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
 public func ToolbarButtonItem(image: UIImage?, landscapeImagePhone: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler) -> FieldToolbarButtonItem {
@@ -49,7 +49,7 @@ public func ToolbarButtonItem(image: UIImage?, landscapeImagePhone: UIImage?, st
         $0.handler  = handler
         
         return $0
-    }(FieldToolbarButtonItem(image: image, landscapeImagePhone: landscapeImagePhone, style: style, target: nil, action: "targetAction:"))
+    }(FieldToolbarButtonItem(image: image, landscapeImagePhone: landscapeImagePhone, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
 public func ToolbarButtonItem(title: String?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler) -> FieldToolbarButtonItem {
@@ -58,7 +58,7 @@ public func ToolbarButtonItem(title: String?, style: UIBarButtonItemStyle, handl
         $0.handler  = handler
         
         return $0
-    }(FieldToolbarButtonItem(title: title, style: style, target: nil, action: "targetAction:"))
+    }(FieldToolbarButtonItem(title: title, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
 public func ToolbarButtonItem(barButtonSystemItem systemItem: UIBarButtonSystemItem, handler:FieldBarButtonHandler) -> FieldToolbarButtonItem {
@@ -67,7 +67,7 @@ public func ToolbarButtonItem(barButtonSystemItem systemItem: UIBarButtonSystemI
         $0.handler  = handler
         
         return $0
-    }(FieldToolbarButtonItem(barButtonSystemItem: systemItem, target: nil, action: "targetAction:"))
+    }(FieldToolbarButtonItem(barButtonSystemItem: systemItem, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
 
