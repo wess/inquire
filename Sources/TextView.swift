@@ -12,7 +12,17 @@ import UIKit
 /// UITextView for use with Form.
 public class TextView : UITextView, Field {
     /// Placeholder for empty field
-    public var placeholder:String?
+    public var placeholder:String? {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    public var placeholderColor:UIColor = UIColor(white: 0.8, alpha: 0.8) {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
     
     /// Form containing field.
     public var form:Form?
@@ -75,12 +85,18 @@ public class TextView : UITextView, Field {
         
         self.validators = validators
         self.setupBlock = setup
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(TextView.textChanged(_:)), name: UITextViewTextDidChangeNotification, object: nil)
     }
     
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextViewTextDidChangeNotification, object: nil)
+    }
+    
     public func move(to:Field) {
         resignFirstResponder()
         
@@ -91,6 +107,46 @@ public class TextView : UITextView, Field {
         if let field = to as? TextView {
             field.becomeFirstResponder()
         }
+    }
+    
+    public override func drawRect(rect: CGRect) {
+        super.drawRect(rect)
+        
+        guard text.isEmpty else { return }
+        guard let placeholder = self.placeholder else { return }
+        
+        var placeholderAttributes = typingAttributes ?? [String: AnyObject]()
+        
+        if placeholderAttributes[NSFontAttributeName] == nil {
+            placeholderAttributes[NSFontAttributeName] = typingAttributes[NSFontAttributeName] ?? font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+        }
+        
+        if placeholderAttributes[NSParagraphStyleAttributeName] == nil {
+            let typingParagraphStyle = typingAttributes[NSParagraphStyleAttributeName]
+            if typingParagraphStyle == nil {
+                let paragraphStyle              = NSMutableParagraphStyle.defaultParagraphStyle().mutableCopy() as! NSMutableParagraphStyle
+                paragraphStyle.alignment        = textAlignment
+                paragraphStyle.lineBreakMode    = textContainer.lineBreakMode
+                
+                placeholderAttributes[NSParagraphStyleAttributeName] = paragraphStyle
+            } else {
+                placeholderAttributes[NSParagraphStyleAttributeName] = typingParagraphStyle
+            }
+        }
+        
+        placeholderAttributes[NSForegroundColorAttributeName] = placeholderColor
+        
+        let placeholderRect = CGRectInset(rect, contentInset.left + textContainerInset.left + textContainer.lineFragmentPadding, contentInset.top + textContainerInset.top)
+        
+        placeholder.drawInRect(placeholderRect, withAttributes: placeholderAttributes)
+    }
+}
+
+extension TextView /* Internal */ {
+    internal func textChanged(notification:NSNotification) {
+        guard let object = notification.object where object === self else { return }
+        
+        setNeedsDisplay()
     }
 }
 

@@ -111,12 +111,12 @@ public class Form : NSObject {
      By resigning every field in the form as firstResponder, the form resigns first responder :)
     */
     public func resignFirstResponder() {
-        fields.map {
+        let _ = fields.map {
             if let _field = $0 as? TextView {
                 _field.resignFirstResponder()
             }
                 
-            else if let _field = $0 as? TextField, setupBlock = _field.setupBlock {
+            else if let _field = $0 as? TextField {
                 _field.resignFirstResponder()
             }
 
