@@ -112,6 +112,8 @@ public class TextView : UITextView, Field {
     public override func drawRect(rect: CGRect) {
         super.drawRect(rect)
         
+        setupBlock?(self)
+        
         guard text.isEmpty else { return }
         guard let placeholder = self.placeholder else { return }
         
