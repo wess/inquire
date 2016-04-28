@@ -132,37 +132,7 @@ private extension Form /* Private */ {
         for var field in orderedFields {
             fieldsArray.append(field)
             
-            let next        = fieldsArray.count
-            let index       = next  - 1
-            let previous    = index - 1
-            
-            field.next          = next      < orderedFields.count   ? orderedFields[next]       : nil
-            field.previous      = previous  > -1                    ? orderedFields[previous]   : nil
-            field.form          = self
-            field.name          = self.getFieldName(field)
-            
-            if let _self = self as? FormFieldDefaults {
-                field.font          = _self.font
-                field.textColor     = _self.textColor
-                field.textAlignment = _self.textAlignment   ?? .Left
-                field.keyboardType  = _self.keyboardType    ?? .Default
-                
-                if  field.validators.count == 0 {
-                    field.validators = _self.defaultValidation
-                }
-            }
-            
-            if let _field = field as? TextView {
-                _field.setupBlock?(_field)
-            }
-                
-            else if let _field = field as? TextField, setupBlock = _field.setupBlock {
-                setupBlock(_field)
-            }
-
-            if let defaults = defaults, value = defaults[field.name] {
-                field.value = value 
-            }
+            setupField(&field, next:fieldsArray.count, ordered:orderedFields, defaults:defaults)
         }
         
         return fieldsArray
@@ -185,6 +155,40 @@ private extension Form /* Private */ {
         return ""
     }
     
+    func setupField(inout field:Field, next:Int, ordered:[Field], defaults:[Fieldname:Fieldvalue]? = nil) {
+        let index       = next  - 1
+        let previous    = index - 1
+        
+        field.next          = next      < ordered.count ? ordered[next]       : nil
+        field.previous      = previous  > -1            ? ordered[previous]   : nil
+        field.form          = self
+        field.name          = self.getFieldName(field)
+        
+        if let _self = self as? FormFieldDefaults {
+            field.font          = _self.font
+            field.textColor     = _self.textColor
+            field.textAlignment = _self.textAlignment   ?? .Left
+            field.keyboardType  = _self.keyboardType    ?? .Default
+            
+            if  field.validators.count == 0 {
+                field.validators = _self.defaultValidation
+            }
+        }
+        
+        if let _field = field as? TextView {
+            _field.setupBlock?(_field)
+        }
+            
+        else if let _field = field as? TextField, setupBlock = _field.setupBlock {
+            setupBlock(_field)
+        }
+        
+        if let defaults = defaults, value = defaults[field.name] {
+            field.value = value
+        }
+
+    }
+    
     func propertyNames() -> [String] {
         var token:dispatch_once_t   = 0
         var names:[String]          = []
@@ -197,10 +201,14 @@ private extension Form /* Private */ {
                 switch value {
                 case is TextView:
                     names.append(label!)
+                    (value as! TextView).form = self // Monkey Patch
+                    (value as! TextView).setupBlock?((value as! TextView))
                     break
                     
                 case is TextField:
                     names.append(label!)
+                    (value as! TextField).form = self
+                    (value as! TextField).setupBlock?((value as! TextField))
                     break
                     
                 default: ()
