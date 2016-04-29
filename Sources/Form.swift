@@ -72,9 +72,29 @@ public class Form : NSObject {
     public var errors:[String:[(ValidationType, String)]] = [:]
     
     /// List of form's fields.
-    public lazy var fields:[Field] = {
-        return self.buildFieldsArray()
-    }()
+    public var fields:[Field] {
+        let dirty           = self.order()
+        var clean:[Field]   = []
+        
+        for index in 0 ..< dirty.count {
+            var current = self.setupField(dirty[index])
+            
+            let previous    = index - 1
+            let next        = index + 1
+            
+            if previous > -1 {
+                current.previous = self.setupField(dirty[previous])
+            }
+            
+            if next < dirty.count {
+                current.next = self.setupField(dirty[next])
+            }
+            
+            clean.append(current)
+        }
+        
+        return clean
+    }
     
     /// Specifies if a form (and it's fields) are valid or not.
     public var isValid:Bool {
@@ -92,15 +112,24 @@ public class Form : NSObject {
         return (errors.count == 0)
     }
     
+    public lazy var allFields:[Field] = {
+        let _allFields = self.buildFieldsArray()
+        
+        return _allFields
+    }()
+    
+    private var defaults:[Fieldname:Fieldvalue]? = nil
+    
     public init(defaults:[Fieldname:Fieldvalue]? = nil) {
         super.init()
         
-        buildFieldsArray(defaults)
+        self.defaults = defaults
+        buildFieldsArray()
     }
     
     /**
      ## Order
-     Must be overridden in subclass. Defines what order fields should be in.
+     Must be overridden in subclass. Defines what fields and the order they should be in.
      */
     public func order() -> [Field] {
         fatalError("Must be implemented in subclass, return a list of fields to be displayed")
@@ -125,14 +154,41 @@ public class Form : NSObject {
 }
 
 private extension Form /* Private */ {
-    func buildFieldsArray(defaults:[Fieldname:Fieldvalue]? = nil) -> [Field] {
-        let orderedFields       = self.order()
+    func buildFieldsArray() -> [Field] {
         var fieldsArray:[Field] = []
         
-        for var field in orderedFields {
-            fieldsArray.append(field)
+        let orderedFields       = self.order()
+        let fields              = self.properties().flatMap { incoming -> Field in
+            var field   = self.setupField(incoming.1)
+            field.name  = incoming.0
             
-            setupField(&field, next:fieldsArray.count, ordered:orderedFields, defaults:defaults)
+            return field
+        }
+        
+        for field in fields {
+            var _field = field
+            
+            if let orderedIndex = orderedFields.indexOf({
+                
+                if let _zero = $0 as? TextField, _field = field as? TextField {
+                    return _zero == _field
+                }
+                else if let _zero = $0 as? TextView, _field = field as? TextView {
+                    return _zero == _field
+                }
+                
+                return false
+            }) {
+                if orderedIndex > 0 {
+                    _field.previous = orderedFields[(orderedIndex - 1)]
+                }
+
+                if (orderedIndex + 1) < orderedFields.count {
+                    _field.next = orderedFields[(orderedIndex + 1)]
+                }
+            }
+            
+            fieldsArray.append(_field)
         }
         
         return fieldsArray
@@ -141,13 +197,13 @@ private extension Form /* Private */ {
     func getFieldName(field:Field) -> String {
         if let f = field as? NSObject {
             
-            for property in propertyNames() {
-                guard let prop = valueForKey(property) else {
+            for (name, field) in properties() {
+                guard let prop = valueForKey(name) else {
                     continue
                 }
                 
                 if f.hash == prop.hash {
-                    return property
+                    return name
                 }
             }
         }
@@ -155,14 +211,9 @@ private extension Form /* Private */ {
         return ""
     }
     
-    func setupField(inout field:Field, next:Int, ordered:[Field], defaults:[Fieldname:Fieldvalue]? = nil) {
-        let index       = next  - 1
-        let previous    = index - 1
-        
-        field.next          = next      < ordered.count ? ordered[next]       : nil
-        field.previous      = previous  > -1            ? ordered[previous]   : nil
-        field.form          = self
-        field.name          = self.getFieldName(field)
+    func setupField(incoming:Field) -> Field {
+        var field   = incoming
+        field.form  = self
         
         if let _self = self as? FormFieldDefaults {
             field.font          = _self.font
@@ -175,23 +226,24 @@ private extension Form /* Private */ {
             }
         }
         
-        if let _field = field as? TextView {
-            _field.setupBlock?(_field)
-        }
-            
-        else if let _field = field as? TextField, setupBlock = _field.setupBlock {
-            setupBlock(_field)
+        if field is TextView {
+            (field as! TextView).setupBlock?((field as! TextView))
         }
         
-        if let defaults = defaults, value = defaults[field.name] {
+        if field is TextField {
+            (field as! TextField).setupBlock?((field as! TextField))
+        }
+        
+        if let defaults = self.defaults, value = defaults[field.name] {
             field.value = value
         }
 
+        return field
     }
     
-    func propertyNames() -> [String] {
+    func properties() -> [String : Field] {
         var token:dispatch_once_t   = 0
-        var names:[String]          = []
+        var props:[String : Field]  = [:]
         
         dispatch_once(&token) {
             
@@ -200,15 +252,11 @@ private extension Form /* Private */ {
             for (label, value) in children {
                 switch value {
                 case is TextView:
-                    names.append(label!)
-                    (value as! TextView).form = self // Monkey Patch
-                    (value as! TextView).setupBlock?((value as! TextView))
+                    props[label!] = (value as! TextView)
                     break
                     
                 case is TextField:
-                    names.append(label!)
-                    (value as! TextField).form = self
-                    (value as! TextField).setupBlock?((value as! TextField))
+                    props[label!] = (value as! TextField)
                     break
                     
                 default: ()
@@ -217,7 +265,7 @@ private extension Form /* Private */ {
             }
         }
         
-        return names
+        return props
     }
 
 }

@@ -16,7 +16,7 @@ public typealias FieldValidationHandler = (Field, AnyObject) -> Void
 public typealias FieldErrorHandler      = (field:Field, rule:ValidationRule) -> Void
 
 /// Protocol for creating Inquire forms.
-public protocol Field {
+public protocol Field : class {
     
     // Basic Field properties for UITextField and UITextView
     var frame:CGRect                    {get set}
@@ -38,13 +38,13 @@ public protocol Field {
     // Nice to have
     var meta:[String:AnyObject] {get set}
     
-    mutating func validate() -> Bool
+    func validate() -> Bool
     func isFirstResponder() -> Bool
     func move(to:Field)
 }
 
 extension Field {
-    public mutating func validate() -> Bool {
+    public func validate() -> Bool {
         var isValid = true
         
         let validation:Validation
@@ -69,5 +69,6 @@ extension Field {
         return isValid
     }
 }
+
 
 
