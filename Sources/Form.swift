@@ -73,26 +73,29 @@ public class Form : NSObject {
     
     /// List of form's fields.
     public var fields:[Field] {
-        let dirty           = self.order()
         var clean:[Field]   = []
-        
-        for index in 0 ..< dirty.count {
-            var current = self.setupField(dirty[index])
-            
-            let previous    = index - 1
-            let next        = index + 1
-            
-            if previous > -1 {
-                current.previous = self.setupField(dirty[previous])
+
+        var token:dispatch_once_t = 0
+        dispatch_once(&token) {
+            let dirty           = self.order()
+            for index in 0 ..< dirty.count {
+                let current = self.setupField(dirty[index])
+                
+                let previous    = index - 1
+                let next        = index + 1
+                
+                if previous > -1 {
+                    current.previous = self.setupField(dirty[previous])
+                }
+                
+                if next < dirty.count {
+                    current.next = self.setupField(dirty[next])
+                }
+                
+                clean.append(current)
             }
-            
-            if next < dirty.count {
-                current.next = self.setupField(dirty[next])
-            }
-            
-            clean.append(current)
         }
-        
+    
         return clean
     }
     
@@ -101,7 +104,7 @@ public class Form : NSObject {
         var _isValid = true
         
         errors.removeAll()
-        for var field in fields {
+        for field in fields {
             _isValid = field.validate()
             
             if !_isValid {
@@ -157,38 +160,41 @@ private extension Form /* Private */ {
     func buildFieldsArray() -> [Field] {
         var fieldsArray:[Field] = []
         
-        let orderedFields       = self.order()
-        let fields              = self.properties().flatMap { incoming -> Field in
-            var field   = self.setupField(incoming.1)
-            field.name  = incoming.0
-            
-            return field
-        }
-        
-        for field in fields {
-            var _field = field
-            
-            if let orderedIndex = orderedFields.indexOf({
+        var token:dispatch_once_t = 0
+        dispatch_once(&token) {
+            let orderedFields       = self.order()
+            let fields              = self.properties().flatMap { incoming -> Field in
+                let field   = self.setupField(incoming.1)
+                field.name  = incoming.0
                 
-                if let _zero = $0 as? TextField, _field = field as? TextField {
-                    return _zero == _field
-                }
-                else if let _zero = $0 as? TextView, _field = field as? TextView {
-                    return _zero == _field
-                }
-                
-                return false
-            }) {
-                if orderedIndex > 0 {
-                    _field.previous = orderedFields[(orderedIndex - 1)]
-                }
-
-                if (orderedIndex + 1) < orderedFields.count {
-                    _field.next = orderedFields[(orderedIndex + 1)]
-                }
+                return field
             }
             
-            fieldsArray.append(_field)
+            for field in fields {
+                let _field = field
+                
+                if let orderedIndex = orderedFields.indexOf({
+                    
+                    if let _zero = $0 as? TextField, _field = field as? TextField {
+                        return _zero == _field
+                    }
+                    else if let _zero = $0 as? TextView, _field = field as? TextView {
+                        return _zero == _field
+                    }
+                    
+                    return false
+                }) {
+                    if orderedIndex > 0 {
+                        _field.previous = orderedFields[(orderedIndex - 1)]
+                    }
+
+                    if (orderedIndex + 1) < orderedFields.count {
+                        _field.next = orderedFields[(orderedIndex + 1)]
+                    }
+                }
+                
+                fieldsArray.append(_field)
+            }
         }
         
         return fieldsArray
@@ -197,7 +203,7 @@ private extension Form /* Private */ {
     func getFieldName(field:Field) -> String {
         if let f = field as? NSObject {
             
-            for (name, field) in properties() {
+            for (name, _) in properties() {
                 guard let prop = valueForKey(name) else {
                     continue
                 }
@@ -212,7 +218,7 @@ private extension Form /* Private */ {
     }
     
     func setupField(incoming:Field) -> Field {
-        var field   = incoming
+        let field   = incoming
         field.form  = self
         
         if let _self = self as? FormFieldDefaults {
