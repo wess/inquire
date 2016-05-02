@@ -244,10 +244,6 @@ private extension Form /* Private */ {
             f.setupBlock = nil
         }
         
-        if field is TextField {
-            (field as! TextField).setupBlock?((field as! TextField))
-        }
-        
         if let defaults = self.defaults, value = defaults[field.name] {
             field.value = value
         }
