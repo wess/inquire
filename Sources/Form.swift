@@ -232,8 +232,16 @@ private extension Form /* Private */ {
             }
         }
         
-        if field is TextView {
-            (field as! TextView).setupBlock?((field as! TextView))
+        if let f = field as? TextView, setup = f.setupBlock {
+            setup(f)
+            
+            f.setupBlock = nil
+        }
+
+        if let f = field as? TextField, setup = f.setupBlock {
+            setup(f)
+            
+            f.setupBlock = nil
         }
         
         if field is TextField {
