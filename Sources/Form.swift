@@ -129,7 +129,6 @@ public class Form : NSObject {
             else if let _field = $0 as? TextField {
                 _field.resignFirstResponder()
             }
-
         }
     }
 }
@@ -183,7 +182,7 @@ private extension Form /* Private */ {
                     break
                     
                 case is TextField:
-                    let field   = (self.setup(item) as! TextView)
+                    let field   = (self.setup(item) as! TextField)
                     field.name  = label!
                     break
                     
