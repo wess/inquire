@@ -49,10 +49,11 @@ public extension FormFieldDefaults {
  Subclass to create a new form that defines fields and their validators.
  */
 
-public typealias Fieldname     = String
-public typealias Fieldvalue    = String
+public typealias Fieldname  = String
+public typealias Fieldvalue = String
 
 public class Form : NSObject {
+    
     /// Validation instance used for validating form fields.
     public let validation = Validation()
     
@@ -60,8 +61,13 @@ public class Form : NSObject {
     public var currentField:Field? {
         
         for field in fields {
-            if field.isFirstResponder() {
+            switch field {
+            case is TextView where (field as! TextView).isFirstResponder():
                 return field
+            case is TextField where (field as! TextField).isFirstResponder():
+                return field
+            default:
+                return nil
             }
         }
         
@@ -71,39 +77,17 @@ public class Form : NSObject {
     /// Form errors from field validations
     public var errors:[String:[(ValidationType, String)]] = [:]
     
-    /// List of form's fields.
-    public var fields:[Field] {
-        var clean:[Field]   = []
-
-        var token:dispatch_once_t = 0
-        dispatch_once(&token) {
-            let dirty           = self.order()
-            for index in 0 ..< dirty.count {
-                let current = self.setupField(dirty[index])
-                
-                let previous    = index - 1
-                let next        = index + 1
-                
-                if previous > -1 {
-                    current.previous = self.setupField(dirty[previous])
-                }
-                
-                if next < dirty.count {
-                    current.next = self.setupField(dirty[next])
-                }
-                
-                clean.append(current)
-            }
-        }
-    
-        return clean
-    }
+    /// List of form's ordered fields.
+    public lazy var fields:[Field] = {
+        return self.order()
+    }()
     
     /// Specifies if a form (and it's fields) are valid or not.
     public var isValid:Bool {
         var _isValid = true
         
         errors.removeAll()
+        
         for field in fields {
             _isValid = field.validate()
             
@@ -115,19 +99,13 @@ public class Form : NSObject {
         return (errors.count == 0)
     }
     
-    public lazy var allFields:[Field] = {
-        let _allFields = self.buildFieldsArray()
-        
-        return _allFields
-    }()
-    
     private var defaults:[Fieldname:Fieldvalue]? = nil
     
     public init(defaults:[Fieldname:Fieldvalue]? = nil) {
         super.init()
+        setupProperties()
         
         self.defaults = defaults
-        buildFieldsArray()
     }
     
     /**
@@ -157,68 +135,7 @@ public class Form : NSObject {
 }
 
 private extension Form /* Private */ {
-    func buildFieldsArray() -> [Field] {
-        var fieldsArray:[Field] = []
-        
-        var token:dispatch_once_t = 0
-        dispatch_once(&token) {
-            let orderedFields       = self.order()
-            let fields              = self.properties().flatMap { incoming -> Field in
-                let field   = self.setupField(incoming.1)
-                field.name  = incoming.0
-                
-                return field
-            }
-            
-            for field in fields {
-                let _field = field
-                
-                if let orderedIndex = orderedFields.indexOf({
-                    
-                    if let _zero = $0 as? TextField, _field = field as? TextField {
-                        return _zero == _field
-                    }
-                    else if let _zero = $0 as? TextView, _field = field as? TextView {
-                        return _zero == _field
-                    }
-                    
-                    return false
-                }) {
-                    if orderedIndex > 0 {
-                        _field.previous = orderedFields[(orderedIndex - 1)]
-                    }
-
-                    if (orderedIndex + 1) < orderedFields.count {
-                        _field.next = orderedFields[(orderedIndex + 1)]
-                    }
-                }
-                
-                fieldsArray.append(_field)
-            }
-        }
-        
-        return fieldsArray
-    }
-    
-    func getFieldName(field:Field) -> String {
-        if let f = field as? NSObject {
-            
-            for (name, _) in properties() {
-                guard let prop = valueForKey(name) else {
-                    continue
-                }
-                
-                if f.hash == prop.hash {
-                    return name
-                }
-            }
-        }
-        
-        return ""
-    }
-    
-    func setupField(incoming:Field) -> Field {
-        let field   = incoming
+  func setup(field:Field) -> Field {
         field.form  = self
         
         if let _self = self as? FormFieldDefaults {
@@ -234,39 +151,40 @@ private extension Form /* Private */ {
         
         if let f = field as? TextView, setup = f.setupBlock {
             setup(f)
-            
-            f.setupBlock = nil
         }
-
-        if let f = field as? TextField, setup = f.setupBlock {
-            setup(f)
             
-            f.setupBlock = nil
+        else if let f = field as? TextField, setup = f.setupBlock {
+            setup(f)
         }
         
         if let defaults = self.defaults, value = defaults[field.name] {
             field.value = value
         }
-
+        
         return field
     }
-    
-    func properties() -> [String : Field] {
-        var token:dispatch_once_t   = 0
-        var props:[String : Field]  = [:]
+
+    func setupProperties() {
+        var token:dispatch_once_t = 0
         
         dispatch_once(&token) {
             
             let children = Mirror(reflecting: self).children.filter { $0.label != nil }
             
             for (label, value) in children {
+                guard let item = value as? Field else {
+                    continue
+                }
+                
                 switch value {
                 case is TextView:
-                    props[label!] = (value as! TextView)
+                    let field   = (self.setup(item) as! TextView)
+                    field.name  = label!
                     break
                     
                 case is TextField:
-                    props[label!] = (value as! TextField)
+                    let field   = (self.setup(item) as! TextView)
+                    field.name  = label!
                     break
                     
                 default: ()
@@ -274,8 +192,12 @@ private extension Form /* Private */ {
                 }
             }
         }
-        
-        return props
     }
 
 }
+
+
+
+
+
+

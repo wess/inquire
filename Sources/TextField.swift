@@ -69,7 +69,7 @@ public class TextField : UITextField, Field {
         }
     }
 
-    internal var setupBlock:(TextField -> Void)? = nil
+    public var setupBlock:(TextField -> Void)? = nil
     
     public convenience init(placeholder:String?) {
         self.init(validators:[], setup:nil)
@@ -129,6 +129,7 @@ public class TextField : UITextField, Field {
             field.becomeFirstResponder()
         }
     }
+
 }
 
 
