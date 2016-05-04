@@ -33,13 +33,12 @@ public protocol Field : class {
     var errors:[(ValidationType, String)]   {get set}
     var validators:[ValidationRule]         {get set}
     var value:String?                       {get set}
-    var onError:FieldErrorHandler?          {get set}
-
+    var onError:FieldErrorHandler?          {get set} 
+    
     // Nice to have
     var meta:[String:AnyObject] {get set}
     
     func validate() -> Bool
-    func isFirstResponder() -> Bool
     func move(to:Field)
 }
 
@@ -69,6 +68,3 @@ extension Field {
         return isValid
     }
 }
-
-
-
