@@ -55,7 +55,7 @@ public class Validation {
         if let pattern = rule.pattern {
             isValid = validateWithPattern(text, pattern: pattern)
         }
-        
+
         return isValid
     }
 }

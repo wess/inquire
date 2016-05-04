@@ -16,7 +16,7 @@ public typealias FieldValidationHandler = (Field, AnyObject) -> Void
 public typealias FieldErrorHandler      = (field:Field, rule:ValidationRule) -> Void
 
 /// Protocol for creating Inquire forms.
-public protocol Field {
+public protocol Field : class {
     
     // Basic Field properties for UITextField and UITextView
     var frame:CGRect                    {get set}
@@ -26,21 +26,24 @@ public protocol Field {
     var keyboardType:UIKeyboardType     {get set}
     
     // Additional
-    var form:Form?                  {get set}
-    var previous:Field?             {get set}
-    var next:Field?                 {get set}
-    var name:String                 {get set}
-    var errors:[String]             {get set}
-    var validators:[ValidationRule] {get set}
-    var value:String?               {get set}
-    var onError:FieldErrorHandler?  {get set}
-
-    mutating func validate() -> Bool
-    func isFirstResponder() -> Bool 
+    var form:Form?                          {get set}
+    var previous:Field?                     {get set}
+    var next:Field?                         {get set}
+    var name:String                         {get set}
+    var errors:[(ValidationType, String)]   {get set}
+    var validators:[ValidationRule]         {get set}
+    var value:String?                       {get set}
+    var onError:FieldErrorHandler?          {get set} 
+    
+    // Nice to have
+    var meta:[String:AnyObject] {get set}
+    
+    func validate() -> Bool
+    func move(to:Field)
 }
 
 extension Field {
-    public mutating func validate() -> Bool {
+    public func validate() -> Bool {
         var isValid = true
         
         let validation:Validation
@@ -50,12 +53,13 @@ extension Field {
         else {
             validation = GlobalValidation
         }
-            
+        
+        errors.removeAll()
         for validator in validators {
             isValid = validation.validate(value, rule: validator)
             
             if !isValid {
-                errors.append(validator.message)
+                errors.append((validator.type, validator.message))
                 
                 self.onError?(field: self, rule: validator)
             }
@@ -64,5 +68,3 @@ extension Field {
         return isValid
     }
 }
-
-
