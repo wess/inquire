@@ -67,7 +67,7 @@ public class Form : NSObject {
             case is TextField where (field as! TextField).isFirstResponder():
                 return field
             default:
-                return nil
+                continue
             }
         }
         
@@ -99,6 +99,7 @@ public class Form : NSObject {
         return (errors.count == 0)
     }
     
+    private var _ordered:[Field] = []
     private var defaults:[Fieldname:Fieldvalue]? = nil
     
     public init(defaults:[Fieldname:Fieldvalue]? = nil) {
@@ -134,7 +135,7 @@ public class Form : NSObject {
 }
 
 private extension Form /* Private */ {
-  func setup(field:Field) -> Field {
+  func setup(inout field:Field) {
         field.form  = self
         
         if let _self = self as? FormFieldDefaults {
@@ -159,10 +160,26 @@ private extension Form /* Private */ {
         if let defaults = self.defaults, value = defaults[field.name] {
             field.value = value
         }
-        
-        return field
     }
 
+    func setupOrderedNavigation() {
+        let ordered = fields
+        
+        for index in 0 ..< ordered.count {
+            let previous    = index - 1
+            let next        = index + 1
+            let current     = ordered[index]
+            
+            if previous > -1 {
+                current.previous = ordered[previous]
+            }
+            
+            if next < ordered.count {
+                current.next = ordered[next]
+            }
+        }
+    }
+    
     func setupProperties() {
         var token:dispatch_once_t = 0
         
@@ -171,25 +188,32 @@ private extension Form /* Private */ {
             let children = Mirror(reflecting: self).children.filter { $0.label != nil }
             
             for (label, value) in children {
-                guard let item = value as? Field else {
+                guard var item = value as? Field else {
                     continue
                 }
                 
+                self.setup(&item)
+                
                 switch value {
                 case is TextView:
-                    let field   = (self.setup(item) as! TextView)
+                    var field = (item as! TextView)
                     field.name  = label!
+                    
                     break
                     
                 case is TextField:
-                    let field   = (self.setup(item) as! TextField)
+                    var field   = (item as! TextField)
                     field.name  = label!
+
                     break
                     
                 default: ()
                     break
                 }
             }
+            
+            self.setupOrderedNavigation()
+
         }
     }
 
