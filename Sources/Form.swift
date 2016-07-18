@@ -196,13 +196,13 @@ private extension Form /* Private */ {
                 
                 switch value {
                 case is TextView:
-                    var field = (item as! TextView)
+                    let field = (item as! TextView)
                     field.name  = label!
                     
                     break
                     
                 case is TextField:
-                    var field   = (item as! TextField)
+                    let field   = (item as! TextField)
                     field.name  = label!
 
                     break
