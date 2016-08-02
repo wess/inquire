@@ -15,11 +15,11 @@ public class PickerField : TextField {
     
     public required init(validators: [ValidationRule], setup: (TextField -> Void)?) {
         super.init(validators: validators, setup: setup)
+        
         self.inputView = pickerView
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
