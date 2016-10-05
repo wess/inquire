@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 /// UITextField with email validation by default.
-public class EmailField : TextField {
-    override public var validators: [ValidationRule] {
+open class EmailField : TextField {
+    override open var validators: [ValidationRule] {
         didSet {
             let filtered = validators.filter { $0.pattern == Email.pattern }
             if filtered.count == 0 {
@@ -20,7 +20,7 @@ public class EmailField : TextField {
         }
     }
     
-    public required init(validators: [ValidationRule], setup: (TextField -> Void)?) {
+    public required init(validators: [ValidationRule], setup: ((TextField) -> Void)?) {
         super.init(validators: validators, setup: setup)
         
         self.validators.append(Email)

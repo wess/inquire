@@ -10,42 +10,42 @@ import Foundation
 import UIKit
 
 /// UITextField with name, validators, and errors for usage with Form.
-public class TextField : UITextField, Field {
+open class TextField : UITextField, Field {
     /// Form containing field.
-    public var form:Form?
+    open var form:Form?
     
-    /// Previous field
-    public var previous:Field?
-    
+    /// Previous Field in form
+    open var previousField: Field?
+
     /// Next field
-    public var next:Field?
+    open var nextField:Field?
 
     /// Block called when the field isn't valid.
-    public var onError:FieldErrorHandler?
+    open var onError:FieldErrorHandler?
 
     /// Name of field, default to property name in form.
-    public var name:String = ""
+    open var name:String = ""
     
     /// Title of field, usually the same as Placeholder
-    public var title:String = ""
+    open var title:String = ""
 
     /// meta data for field
-    public var meta:[String:AnyObject] = [:]
+    open var meta:[String:AnyObject] = [:]
     
     /// Input toolbar
-    private lazy var toolbar:UIToolbar = {
-        let frame       = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.size.width, height: 44)
+    fileprivate lazy var toolbar:UIToolbar = {
+        let frame       = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44)
         let _toolbar    = UIToolbar(frame: frame)
         
         return _toolbar
     }()
     
     /// Items for field toolbar.
-    public var toolbarItems:[FieldToolbarButtonItem]? {
+    open var toolbarItems:[FieldToolbarButtonItem]? {
         didSet {
             inputAccessoryView = nil
         
-            if let items = toolbarItems where items.count > 0 {
+            if let items = toolbarItems , items.count > 0 {
                 toolbar.items       = items
                 inputAccessoryView  = toolbar
             }
@@ -53,23 +53,23 @@ public class TextField : UITextField, Field {
     }
     
     /// Validators used against value of field.
-    public var validators:[ValidationRule]  = []
+    open var validators:[ValidationRule]  = []
     
     /// Field errors.
-    public var errors:[(ValidationType, String)] = []
+    open var errors:[(ValidationType, String)] = []
     
     /// Field's value.
-    public var value:String? {
+    open var value:String? {
         get {
             return self.text
         }
         
         set {
-            self.text = String(newValue)
+            self.text = String(describing: newValue)
         }
     }
 
-    public var setupBlock:(TextField -> Void)? = nil
+    open var setupBlock:((TextField) -> Void)? = nil
     
     public convenience init(placeholder:String?) {
         self.init(validators:[], setup:nil)
@@ -77,7 +77,7 @@ public class TextField : UITextField, Field {
         self.placeholder = placeholder
     }
     
-    public convenience init(placeholder:String?, setup:(TextField -> Void)?) {
+    public convenience init(placeholder:String?, setup:((TextField) -> Void)?) {
         self.init(validators:[], setup:setup)
     
         self.placeholder = placeholder
@@ -89,7 +89,7 @@ public class TextField : UITextField, Field {
         self.placeholder = placeholder
     }
     
-    public convenience init(placeholder:String?, validators:[ValidationRule]?, setup:(TextField -> Void)?) {
+    public convenience init(placeholder:String?, validators:[ValidationRule]?, setup:((TextField) -> Void)?) {
         self.init(validators:validators ?? [], setup:setup)
         
         self.placeholder = placeholder
@@ -99,7 +99,7 @@ public class TextField : UITextField, Field {
         self.init(validators:[], setup:nil)
     }
 
-    public convenience init(setup:(TextField -> Void)?) {
+    public convenience init(setup:((TextField) -> Void)?) {
         self.init(validators:[], setup:setup)
     }
     
@@ -107,7 +107,7 @@ public class TextField : UITextField, Field {
         self.init(validators:validators, setup:nil)
     }
 
-    public required init(validators:[ValidationRule] = [], setup:(TextField -> Void)?) {
+    public required init(validators:[ValidationRule] = [], setup:((TextField) -> Void)?) {
         super.init(frame: .zero)
         
         self.validators = validators
@@ -118,7 +118,7 @@ public class TextField : UITextField, Field {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func move(to:Field) {
+    open func move(_ to:Field) {
         resignFirstResponder()
         
         if let field = to as? TextField {

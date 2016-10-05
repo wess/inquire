@@ -9,73 +9,73 @@
 import Foundation
 
 internal enum DefaultValidatorPattern {
-    case Email
-    case URL
-    case AlphaNumeric
-    case Alpha
-    case Numeric
+    case email
+    case url
+    case alphaNumeric
+    case alpha
+    case numeric
 
     var pattern:String? {
         switch self {
-        case .Email:
+        case .email:
             return "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
             
-        case .URL:
+        case .url:
             return "(http|https)://((\\w)*|([0-9]*)|([-|_])*)+([\\.|/]((\\w)*|([0-9]*)|([-|_])*))+"
             
-        case .AlphaNumeric:
+        case .alphaNumeric:
             return "[^0-9a-zA-Z]"
             
-        case .Alpha:
+        case .alpha:
             return "[^a-zA-Z]"
             
-        case .Numeric:
+        case .numeric:
             return "[^0-9]"
         }
     }
     
     var stringValue:String {
         switch self {
-        case .Email:
+        case .email:
             return "email"
             
-        case .URL:
+        case .url:
             return "url"
             
-        case .AlphaNumeric:
+        case .alphaNumeric:
             return "alpha_numeric"
             
-        case .Alpha:
+        case .alpha:
             return "alpha"
             
-        case .Numeric:
+        case .numeric:
             return "numeric"
         }
     }
     
     var message:String {
         switch self {
-        case .Email:
+        case .email:
             return "Invalid email address"
             
-        case .URL:
+        case .url:
             return "Invalid URL"
             
-        case .AlphaNumeric:
+        case .alphaNumeric:
             return "{field} can only be letters and numbers"
             
-        case .Alpha:
+        case .alpha:
             return "{field} can only be letters"
             
-        case .Numeric:
+        case .numeric:
             return "{field} can only be numbers"
         }
     }
     
     var type:ValidationType {
         switch self {
-        case .Email, .URL, .AlphaNumeric, .Alpha, .Numeric:
-            return ValidationType.Formatting
+        case .email, .url, .alphaNumeric, .alpha, .numeric:
+            return ValidationType.formatting
         }
     }
 

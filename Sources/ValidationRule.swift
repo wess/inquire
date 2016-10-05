@@ -33,22 +33,22 @@ public struct ValidationRule {
 }
 
 /// Validation rule for Email
-public let Email        = DefaultValidatorPattern.Email.rule
+public let Email        = DefaultValidatorPattern.email.rule
 
 /// Validation rule for URL
-public let URL          = DefaultValidatorPattern.URL.rule
+public let URL          = DefaultValidatorPattern.url.rule
 
 /// Validation rule for only letters and numbers.
-public let AlphaNumeric = DefaultValidatorPattern.AlphaNumeric.rule
+public let AlphaNumeric = DefaultValidatorPattern.alphaNumeric.rule
 
 /// Validation rule for letters only
-public let Alpha        = DefaultValidatorPattern.Alpha.rule
+public let Alpha        = DefaultValidatorPattern.alpha.rule
 
 /// Validation rule for numbers only
-public let Numeric      = DefaultValidatorPattern.Numeric.rule
+public let Numeric      = DefaultValidatorPattern.numeric.rule
 
 /// Validation rule for required fields.
-public let Required     = ValidationRule(name: "required", type: .Required, message: "Field is required", pattern: nil) { value -> Bool in
+public let Required     = ValidationRule(name: "required", type: .required, message: "Field is required", pattern: nil) { value -> Bool in
     guard let value = value as? String else {
         return false
     }
@@ -63,26 +63,26 @@ public let Required     = ValidationRule(name: "required", type: .Required, mess
 public enum ValidationType : RawRepresentable {
     public typealias RawValue = String
     
-    case Required
-    case Formatting
-    case Length
-    case Custom(String)
+    case required
+    case formatting
+    case length
+    case custom(String)
     
     public init?(rawValue: ValidationType.RawValue) {
         switch rawValue {
-            case "required":   self = Required
-            case "formatting": self = Formatting
-            case "length":     self = Length
-            default: self =    Custom(rawValue)
+            case "required":   self = .required
+            case "formatting": self = .formatting
+            case "length":     self = .length
+            default: self =    .custom(rawValue)
         }
     }
     
     public var rawValue:RawValue {
         switch self {
-            case Required:        return "required"
-            case Formatting:      return "formatting"
-            case Length:          return "length"
-            case Custom(let str): return str
+            case .required:        return "required"
+            case .formatting:      return "formatting"
+            case .length:          return "length"
+            case .custom(let str): return str
         }
     }
 }

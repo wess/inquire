@@ -9,22 +9,22 @@
 import Foundation
 
 /// ValidationBlock: Block used to validate string values.
-public typealias ValidationBlock = AnyObject -> Bool
+public typealias ValidationBlock = (AnyObject) -> Bool
 
 /**
  # Valdation
  Class used for loading and executing validations for form field values.
  */
-public class Validation {
+open class Validation {
     
-    private func validateWithPattern(value:String, pattern:String) -> Bool {
+    fileprivate func validateWithPattern(_ value:String, pattern:String) -> Bool {
         if value.characters.count < 0 {
             return false
         }
         
         do {
-            let regex   = try NSRegularExpression(pattern: pattern, options: [.CaseInsensitive])
-            let matches = regex.matchesInString(value, options: NSMatchingOptions(rawValue: 0), range: NSMakeRange(0, value.characters.count))
+            let regex   = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+            let matches = regex.matches(in: value, options: NSRegularExpression.MatchingOptions(rawValue: 0), range: NSMakeRange(0, value.characters.count))
             
             return matches.count > 0 ? true : false
         }
@@ -41,7 +41,7 @@ public class Validation {
      - Parameter value:String
      - Parameter rule:ValidationRule
      */
-    public func validate(value:String?, rule:ValidationRule) -> Bool {
+    open func validate(_ value:String?, rule:ValidationRule) -> Bool {
         var isValid = true
         
         guard let text = value else {
@@ -49,7 +49,7 @@ public class Validation {
         }
         
         if let block = rule.block {
-            isValid = block(text)
+            isValid = block(text as AnyObject)
         }
 
         if let pattern = rule.pattern {
