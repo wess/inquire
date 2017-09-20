@@ -24,19 +24,19 @@ public protocol FormFieldDefaults {
 
 public extension FormFieldDefaults {
     var font:UIFont {
-        return UIFont.systemFontOfSize(UIFont.systemFontSize())
+        return UIFont.systemFont(ofSize: UIFont.systemFontSize)
     }
     
     var textColor:UIColor {
-        return .blackColor()
+        return .black
     }
     
     var textAlignment:NSTextAlignment {
-        return .Left
+        return .left
     }
     
     var keyboardType:UIKeyboardType {
-        return .Default
+        return .default
     }
     
     var defaultValidation:[ValidationRule] {
@@ -52,19 +52,19 @@ public extension FormFieldDefaults {
 public typealias Fieldname  = String
 public typealias Fieldvalue = String
 
-public class Form : NSObject {
+open class Form : NSObject {
     
     /// Validation instance used for validating form fields.
-    public let validation = Validation()
+    open let validation = Validation()
     
     /// The Current field of the form that has focus.
-    public var currentField:Field? {
+    open var currentField:Field? {
         
         for field in fields {
             switch field {
-            case is TextView where (field as! TextView).isFirstResponder():
+            case is TextView where (field as! TextView).isFirstResponder:
                 return field
-            case is TextField where (field as! TextField).isFirstResponder():
+            case is TextField where (field as! TextField).isFirstResponder:
                 return field
             default:
                 continue
@@ -75,15 +75,15 @@ public class Form : NSObject {
     }
     
     /// Form errors from field validations
-    public var errors:[String:[(ValidationType, String)]] = [:]
+    open var errors:[String:[(ValidationType, String)]] = [:]
     
     /// List of form's ordered fields.
-    public lazy var fields:[Field] = {
+    open lazy var fields:[Field] = {
         return self.order()
     }()
     
     /// Specifies if a form (and it's fields) are valid or not.
-    public var isValid:Bool {
+    open var isValid:Bool {
         var _isValid = true
         
         errors.removeAll()
@@ -99,8 +99,8 @@ public class Form : NSObject {
         return (errors.count == 0)
     }
     
-    private var _ordered:[Field] = []
-    private var defaults:[Fieldname:Fieldvalue]? = nil
+    fileprivate var _ordered:[Field] = []
+    fileprivate var defaults:[Fieldname:Fieldvalue]? = nil
     
     public init(defaults:[Fieldname:Fieldvalue]? = nil) {
         super.init()
@@ -113,7 +113,7 @@ public class Form : NSObject {
      ## Order
      Must be overridden in subclass. Defines what fields and the order they should be in.
      */
-    public func order() -> [Field] {
+    open func order() -> [Field] {
         fatalError("Must be implemented in subclass, return a list of fields to be displayed")
     }
     
@@ -121,7 +121,7 @@ public class Form : NSObject {
      ## Form as a responder
      By resigning every field in the form as firstResponder, the form resigns first responder :)
     */
-    public func resignFirstResponder() {
+    open func resignFirstResponder() {
         let _ = fields.map {
             if let _field = $0 as? TextView {
                 _field.resignFirstResponder()
@@ -134,30 +134,30 @@ public class Form : NSObject {
     }
 }
 
-private extension Form /* Private */ {
-  func setup(inout field:Field) {
+fileprivate extension Form /* Private */ {
+  func setup( _ field:inout Field) {
         field.form  = self
         
         if let _self = self as? FormFieldDefaults {
             field.font          = _self.font
             field.textColor     = _self.textColor
-            field.textAlignment = _self.textAlignment   ?? .Left
-            field.keyboardType  = _self.keyboardType    ?? .Default
+            field.textAlignment = _self.textAlignment   ?? .left
+            field.keyboardType  = _self.keyboardType    ?? .default
             
             if  field.validators.count == 0 {
                 field.validators = _self.defaultValidation
             }
         }
         
-        if let f = field as? TextView, setup = f.setupBlock {
+        if let f = field as? TextView, let setup = f.setupBlock {
             setup(f)
         }
             
-        else if let f = field as? TextField, setup = f.setupBlock {
+        else if let f = field as? TextField, let setup = f.setupBlock {
             setup(f)
         }
         
-        if let defaults = self.defaults, value = defaults[field.name] {
+        if let defaults = self.defaults, let value = defaults[field.name] {
             field.value = value
         }
     }
@@ -171,50 +171,48 @@ private extension Form /* Private */ {
             let current     = ordered[index]
             
             if previous > -1 {
-                current.previous = ordered[previous]
+                current.previousField = ordered[previous]
             }
             
             if next < ordered.count {
-                current.next = ordered[next]
+                current.nextField = ordered[next]
             }
         }
     }
     
     func setupProperties() {
-        var token:dispatch_once_t = 0
-        
-        dispatch_once(&token) {
-            
-            let children = Mirror(reflecting: self).children.filter { $0.label != nil }
-            
-            for (label, value) in children {
-                guard var item = value as? Field else {
-                    continue
-                }
-                
-                self.setup(&item)
-                
-                switch value {
-                case is TextView:
-                    let field = (item as! TextView)
-                    field.name  = label!
-                    
-                    break
-                    
-                case is TextField:
-                    let field   = (item as! TextField)
-                    field.name  = label!
 
-                    break
-                    
-                default: ()
-                    break
-                }
+        objc_sync_enter(self)
+        defer { objc_sync_exit(self) }
+        
+        let children = Mirror(reflecting: self).children.filter { $0.label != nil }
+        
+        for (label, value) in children {
+            guard var item = value as? Field else {
+                continue
             }
             
-            self.setupOrderedNavigation()
+            self.setup(&item)
+            
+            switch value {
+            case is TextView:
+                let field   = (item as! TextView)
+                field.name  = label!
+                
+                break
+                
+            case is TextField:
+                let field   = (item as! TextField)
+                field.name  = label!
 
+                break
+                
+            default: ()
+                break
+            }
         }
+            
+        self.setupOrderedNavigation()
     }
 
 }

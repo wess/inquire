@@ -9,32 +9,32 @@
 import Foundation
 import UIKit
 
-public typealias FieldBarButtonHandler = ((sender:AnyObject?) -> Void)
+public typealias FieldBarButtonHandler = ((_ sender:AnyObject?) -> Void)
 
-public class FieldToolbarButtonItem : UIBarButtonItem {
+open class FieldToolbarButtonItem : UIBarButtonItem {
     internal var handler:FieldBarButtonHandler?
 
-    internal func targetAction(sender:AnyObject?) {
-        self.handler?(sender: sender)
+    internal func targetAction(_ sender:AnyObject?) {
+        self.handler?(sender)
     }
 }
 
 public enum ToolbarButtonFlexType {
-    case Fixed
-    case Flexible
+    case fixed
+    case flexible
 }
 
-public func ToolbarButtonItem(flexType:ToolbarButtonFlexType) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ flexType:ToolbarButtonFlexType) -> FieldToolbarButtonItem {
     switch flexType {
-    case .Fixed:
-        return FieldToolbarButtonItem(barButtonSystemItem: .FixedSpace, target: nil, action: nil)
+    case .fixed:
+        return FieldToolbarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
 
-    case .Flexible:
-        return FieldToolbarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
+    case .flexible:
+        return FieldToolbarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
     }
 }
 
-public func ToolbarButtonItem(image: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ image: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler
@@ -43,7 +43,7 @@ public func ToolbarButtonItem(image: UIImage?, style: UIBarButtonItemStyle, hand
     }(FieldToolbarButtonItem(image: image, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
-public func ToolbarButtonItem(image: UIImage?, landscapeImagePhone: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ image: UIImage?, landscapeImagePhone: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler
@@ -52,7 +52,7 @@ public func ToolbarButtonItem(image: UIImage?, landscapeImagePhone: UIImage?, st
     }(FieldToolbarButtonItem(image: image, landscapeImagePhone: landscapeImagePhone, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
-public func ToolbarButtonItem(title: String?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ title: String?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler

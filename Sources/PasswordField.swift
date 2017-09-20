@@ -10,11 +10,11 @@ import Foundation
 import UIKit
 
 /// UITextField with security entry always set to true.
-public class PasswordField : TextField {
-        public required init(validators:[ValidationRule] = [], setup:(TextField -> Void)? = nil) {
+open class PasswordField : TextField {
+        public required init(validators:[ValidationRule] = [], setup:((TextField) -> Void)? = nil) {
         super.init(validators: validators, setup: setup)
         
-        self.secureTextEntry = true
+        self.isSecureTextEntry = true
     }
     
     required public init?(coder aDecoder: NSCoder) {

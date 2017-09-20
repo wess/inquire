@@ -13,7 +13,7 @@ import UIKit
 public typealias FieldValidationHandler = (Field, AnyObject) -> Void
 
 /// Block called when a field isn't valid
-public typealias FieldErrorHandler      = (field:Field, rule:ValidationRule) -> Void
+public typealias FieldErrorHandler      = (_ field:Field, _ rule:ValidationRule) -> Void
 
 /// Protocol for creating Inquire forms.
 public protocol Field : class {
@@ -27,8 +27,8 @@ public protocol Field : class {
     
     // Additional
     var form:Form?                          {get set}
-    var previous:Field?                     {get set}
-    var next:Field?                         {get set}
+    var previousField:Field?                {get set}
+    var nextField:Field?                    {get set}
     var name:String                         {get set}
     var errors:[(ValidationType, String)]   {get set}
     var validators:[ValidationRule]         {get set}
@@ -39,7 +39,7 @@ public protocol Field : class {
     var meta:[String:AnyObject] {get set}
     
     func validate() -> Bool
-    func move(to:Field)
+    func move(_ to:Field)
 }
 
 extension Field {
@@ -61,7 +61,7 @@ extension Field {
             if !isValid {
                 errors.append((validator.type, validator.message))
                 
-                self.onError?(field: self, rule: validator)
+                self.onError?(self, validator)
             }
         }
 
