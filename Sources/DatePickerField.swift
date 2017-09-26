@@ -13,7 +13,7 @@ import UIKit
 public class DatePickerField : TextField {
     public var datePicker:UIDatePicker = UIDatePicker()
     
-    public required init(validators: [ValidationRule], setup: (TextField -> Void)?) {
+    public required init(validators: [ValidationRule], setup: ((TextField) -> Void)?) {
         super.init(validators: validators, setup: setup)
         
         self.inputView = datePicker
