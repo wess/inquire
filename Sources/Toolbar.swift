@@ -14,7 +14,7 @@ public typealias FieldBarButtonHandler = ((_ sender:AnyObject?) -> Void)
 open class FieldToolbarButtonItem : UIBarButtonItem {
     internal var handler:FieldBarButtonHandler?
 
-    internal func targetAction(_ sender:AnyObject?) {
+    @objc internal func targetAction(_ sender:AnyObject?) {
         self.handler?(sender)
     }
 }
