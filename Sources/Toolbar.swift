@@ -34,7 +34,7 @@ public func ToolbarButtonItem(_ flexType:ToolbarButtonFlexType) -> FieldToolbarB
     }
 }
 
-public func ToolbarButtonItem(_ image: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ image: UIImage?, style: UIBarButtonItem.Style, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler
@@ -43,7 +43,7 @@ public func ToolbarButtonItem(_ image: UIImage?, style: UIBarButtonItemStyle, ha
     }(FieldToolbarButtonItem(image: image, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
-public func ToolbarButtonItem(_ image: UIImage?, landscapeImagePhone: UIImage?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ image: UIImage?, landscapeImagePhone: UIImage?, style: UIBarButtonItem.Style, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler
@@ -52,7 +52,7 @@ public func ToolbarButtonItem(_ image: UIImage?, landscapeImagePhone: UIImage?, 
     }(FieldToolbarButtonItem(image: image, landscapeImagePhone: landscapeImagePhone, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
-public func ToolbarButtonItem(_ title: String?, style: UIBarButtonItemStyle, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(_ title: String?, style: UIBarButtonItem.Style, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler
@@ -61,7 +61,7 @@ public func ToolbarButtonItem(_ title: String?, style: UIBarButtonItemStyle, han
     }(FieldToolbarButtonItem(title: title, style: style, target: nil, action: #selector(FieldToolbarButtonItem.targetAction(_:))))
 }
 
-public func ToolbarButtonItem(barButtonSystemItem systemItem: UIBarButtonSystemItem, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
+public func ToolbarButtonItem(barButtonSystemItem systemItem: UIBarButtonItem.SystemItem, handler:FieldBarButtonHandler?) -> FieldToolbarButtonItem {
     return {
         $0.target   = $0
         $0.handler  = handler

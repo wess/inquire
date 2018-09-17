@@ -85,8 +85,8 @@ open class TextView : UITextView, Field {
         
         self.validators = validators
         self.setupBlock = setup
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(TextView.textChanged(_:)), name: NSNotification.Name.UITextViewTextDidChange, object: nil)
+      
+      NotificationCenter.default.addObserver(self, selector: #selector(TextView.textChanged(_:)), name: UITextView.textDidChangeNotification, object: nil)
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -94,7 +94,7 @@ open class TextView : UITextView, Field {
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UITextViewTextDidChange, object: nil)
+      NotificationCenter.default.removeObserver(self, name: UITextView.textDidChangeNotification, object: nil)
     }
     
     open func move(_ to:Field) {
@@ -115,26 +115,26 @@ open class TextView : UITextView, Field {
         guard text.isEmpty else { return }
         guard let placeholder = self.placeholder else { return }
     
-        var placeholderAttributes = (typingAttributes as? [NSAttributedStringKey: Any])  ?? [NSAttributedStringKey: Any]()
+      var placeholderAttributes = (typingAttributes as? [NSAttributedString.Key: Any])  ?? [NSAttributedString.Key: Any]()
         
-        if placeholderAttributes[NSAttributedStringKey.font] == nil {
-            placeholderAttributes[NSAttributedStringKey.font] = placeholderAttributes[NSAttributedStringKey.font] ?? font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+      if placeholderAttributes[NSAttributedString.Key.font] == nil {
+        placeholderAttributes[NSAttributedString.Key.font] = placeholderAttributes[NSAttributedString.Key.font] ?? font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
         }
         
-        if placeholderAttributes[NSAttributedStringKey.paragraphStyle] == nil {
-            let typingParagraphStyle = placeholderAttributes[NSAttributedStringKey.paragraphStyle]
+      if placeholderAttributes[NSAttributedString.Key.paragraphStyle] == nil {
+          let typingParagraphStyle = placeholderAttributes[NSAttributedString.Key.paragraphStyle]
             if typingParagraphStyle == nil {
                 let paragraphStyle              = NSMutableParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
                 paragraphStyle.alignment        = textAlignment
                 paragraphStyle.lineBreakMode    = textContainer.lineBreakMode
                 
-                placeholderAttributes[NSAttributedStringKey.paragraphStyle] = paragraphStyle
+              placeholderAttributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             } else {
-                placeholderAttributes[NSAttributedStringKey.paragraphStyle] = typingParagraphStyle
+              placeholderAttributes[NSAttributedString.Key.paragraphStyle] = typingParagraphStyle
             }
         }
         
-        placeholderAttributes[NSAttributedStringKey.foregroundColor] = placeholderColor
+      placeholderAttributes[NSAttributedString.Key.foregroundColor] = placeholderColor
         
         let placeholderRect = rect.insetBy(dx: contentInset.left + textContainerInset.left + textContainer.lineFragmentPadding, dy: contentInset.top + textContainerInset.top)
         
